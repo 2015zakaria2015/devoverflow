@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 
 import "./globals.css";
 import ThemeProvider from "../../context/Theme";
-import Navbar from "@/components/navigation/navbar/navbar";
+import Navbar from "@/components/navigation/navbar";
 
 const inter = localFont({
   src: "./fonts/InterVF.ttf",
@@ -14,7 +14,7 @@ const inter = localFont({
 const spaceGrotesk = localFont({
   src: "./fonts/SpaceGroteskVF.ttf",
   variable: "--font-space-grotesk",
-  weight: "100 200 300 400 500 700",
+  weight: "300 400 500 700",
 });
 
 export const metadata: Metadata = {
@@ -39,7 +39,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Navbar />
-          {children}
+          {children}F
         </ThemeProvider>
       </body>
     </html>
