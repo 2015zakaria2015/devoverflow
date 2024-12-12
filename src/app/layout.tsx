@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Geist, Geist_Mono } from "next/font/google";
-
-import "./globals.css";
-import ThemeProvider from "../../context/Theme";
+import "./styles/globals.css";
+import Navbar from "@/components/ui/navbar";
 
 const inter = localFont({
   src: "./fonts/InterVF.ttf",
@@ -30,16 +28,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.className} ${spaceGrotesk.variable}  antialiased`}
+        className={`${inter.className} ${spaceGrotesk.variable}  antialiased bg-slate-400`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="systeme"
-          enableSystem
-          disableTransitionOnChange
-        >
+        
+          <Navbar />
+
           {children}
-        </ThemeProvider>
       </body>
     </html>
   );
