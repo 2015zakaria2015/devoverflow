@@ -1,6 +1,6 @@
 import React from 'react'
 import { auth } from '@/auth'
-import { Button } from '@/components/ui/button';
+import { Button } from '@/src/components/ui/button';
 
 const HomePage = async () => {
   const session = await auth() ;
