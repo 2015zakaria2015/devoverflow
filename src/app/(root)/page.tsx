@@ -3,6 +3,7 @@ import { Button } from "@/src/components/ui/button";
 import Link from "next/link";
 import ROUTES from "@/constants/routes";
 import LocalSearch from "@/src/components/search/LocalSearch";
+import HomeFilter from "@/src/components/filters/HomeFilter";
 
 const questions = [
   {
@@ -12,10 +13,7 @@ const questions = [
       "I'm new to React and struggling to understand how hooks work. Can someone explain useEffect and useState?",
     tags: [
       { _id: "1", name: "React" },
-      { _id: "2", name: "Hooks" },
-      { _id: "3", name: "useEffect" },
-      { _id: "4", name: "useState" },
-      { _id: "5", name: "JavaScript" },
+      { _id: "2", name: "React" },
     ],
     author: {
       _id: "1",
@@ -28,14 +26,13 @@ const questions = [
   },
   {
     _id: "2",
-    title: "Best Practices for CSS in React",
+    title: "Best Practices for CSS in javascript",
     description:
       "What are the best practices for organizing and writing CSS in a React application?",
     tags: [
-      { _id: "1", name: "React" },
-      { _id: "2", name: "CSS" },
-      { _id: "3", name: "Styling" },
-      { _id: "4", name: "Web Development" },
+      { _id: "1", name: "Javascript" },
+      { _id: "2", name: "Javascript" },
+    
     ],
     author: {
       _id: "2",
@@ -46,46 +43,46 @@ const questions = [
     views: 200,
     createdAt: "2023-11-01T11:00:00.000Z",
   },
-  {
-    _id: "3",
-    title: "Handling Forms in React",
-    description:
-      "I need help with handling form submissions in React. What's the best way to manage form state and validation?",
-    tags: [
-      { _id: "1", name: "React" },
-      { _id: "2", name: "Forms" },
-      { _id: "3", name: "State Management" },
-      { _id: "4", name: "Validation" },
-    ],
-    author: {
-      _id: "3",
-      name: "Charlie Brown",
-    },
-    upvotes: 12,
-    answers: 6,
-    views: 120,
-    createdAt: "2023-12-01T12:00:00.000Z",
-  },
-  {
-    _id: "4",
-    title: "Optimizing Performance in React",
-    description:
-      "My React application is slow. What are some tips and tricks to optimize its performance?",
-    tags: [
-      { _id: "1", name: "React" },
-      { _id: "2", name: "Performance" },
-      { _id: "3", name: "Optimization" },
-      { _id: "4", name: "Web Development" },
-    ],
-    author: {
-      _id: "4",
-      name: "Diana Prince",
-    },
-    upvotes: 25,
-    answers: 12,
-    views: 250,
-    createdAt: "2023-09-01T13:00:00.000Z",
-  },
+  // {
+  //   _id: "3",
+  //   title: "Handling Forms in React",
+  //   description:
+  //     "I need help with handling form submissions in React. What's the best way to manage form state and validation?",
+  //   tags: [
+  //     { _id: "1", name: "React" },
+  //     { _id: "2", name: "Forms" },
+  //     { _id: "3", name: "State Management" },
+  //     { _id: "4", name: "Validation" },
+  //   ],
+  //   author: {
+  //     _id: "3",
+  //     name: "Charlie Brown",
+  //   },
+  //   upvotes: 12,
+  //   answers: 6,
+  //   views: 120,
+  //   createdAt: "2023-12-01T12:00:00.000Z",
+  // },
+  // {
+  //   _id: "4",
+  //   title: "Optimizing Performance in React",
+  //   description:
+  //     "My React application is slow. What are some tips and tricks to optimize its performance?",
+  //   tags: [
+  //     { _id: "1", name: "React" },
+  //     { _id: "2", name: "Performance" },
+  //     { _id: "3", name: "Optimization" },
+  //     { _id: "4", name: "Web Development" },
+  //   ],
+  //   author: {
+  //     _id: "4",
+  //     name: "Diana Prince",
+  //   },
+  //   upvotes: 25,
+  //   answers: 12,
+  //   views: 250,
+  //   createdAt: "2023-09-01T13:00:00.000Z",
+  // },
 ];
 
 interface SearchParams {
@@ -93,10 +90,13 @@ interface SearchParams {
 }
 
 const HomePage = async ({ searchParams }: SearchParams) => {
-  const { query = "" } = await searchParams;
+  const { query = "" ,filter="" } = await searchParams;
 
-  const filterQuestions = questions.filter((question) => {
-    return question.title.toLowerCase().includes(query.toLowerCase());
+  const filteredQuestions = questions.filter((question) => {
+    const matchesQuery = question.title.toLowerCase().includes(query.toLowerCase());
+
+    const matchesFilter = filter ? question.tags[0].name.toLowerCase() === filter.toLowerCase() : true;
+    return matchesQuery && matchesFilter;
   });
 
   return (
@@ -118,8 +118,9 @@ const HomePage = async ({ searchParams }: SearchParams) => {
           otherClasses="flex-1"
         />
       </section>
+      <HomeFilter />
       <div className="mt-10 flex w-full flex-col gap-6">
-        {filterQuestions.map((question) => (
+        {filteredQuestions.map((question) => (
           <h1 key={question._id}>{question.title}</h1>
         ))}
       </div>
