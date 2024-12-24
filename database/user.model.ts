@@ -1,5 +1,4 @@
 import {model, models ,Schema} from "mongoose";
-import { unique } from "next/dist/build/utils";
 
 export  interface  IUser{ 
     name:string;
@@ -11,6 +10,7 @@ export  interface  IUser{
     portfolio?:string;
     reputation?:number;
 }
+
 
 
 
@@ -27,6 +27,6 @@ const UserSchema = new Schema({
 
 } ,{timestamps:true});
 
-const User = models?.user || model<IUser>("User",UserSchema);
+const User = models?.User || model<IUser>("User",UserSchema);
 
 export default User;
