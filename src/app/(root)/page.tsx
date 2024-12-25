@@ -5,6 +5,9 @@ import ROUTES from "@/constants/routes";
 import LocalSearch from "@/src/components/search/LocalSearch";
 import HomeFilter from "@/src/components/filters/HomeFilter";
 import QuestionCard from "@/src/components/cards/QuestionCard";
+import { ValidationError } from "@/src/lib/http-errors";
+import dbConnect from "@/src/lib/mongoose";
+import handleError from "@/src/lib/handlers/error";
 
 const questions = [
   {
@@ -19,13 +22,13 @@ const questions = [
     author: {
       _id: "1",
       name: "Alice Smith",
-      image: "https://sm.ign.com/ign_fr/cover/a/avatar-gen/avatar-generations_bssq.jpg",
+      image:
+        "https://sm.ign.com/ign_fr/cover/a/avatar-gen/avatar-generations_bssq.jpg",
     },
     upvotes: 15,
     answers: 7,
     views: 150,
     createdAt: "2023-10-01T10:00:00.000Z",
-
   },
   {
     _id: "2",
@@ -39,8 +42,8 @@ const questions = [
     author: {
       _id: "2",
       name: "Bob Johnson",
-      image: "https://sm.ign.com/ign_fr/cover/a/avatar-gen/avatar-generations_bssq.jpg",
-
+      image:
+        "https://sm.ign.com/ign_fr/cover/a/avatar-gen/avatar-generations_bssq.jpg",
     },
     upvotes: 20,
     answers: 10,
@@ -61,8 +64,8 @@ const questions = [
     author: {
       _id: "3",
       name: "Charlie Brown",
-      image: "https://sm.ign.com/ign_fr/cover/a/avatar-gen/avatar-generations_bssq.jpg",
-
+      image:
+        "https://sm.ign.com/ign_fr/cover/a/avatar-gen/avatar-generations_bssq.jpg",
     },
     upvotes: 12,
     answers: 6,
@@ -83,8 +86,8 @@ const questions = [
     author: {
       _id: "4",
       name: "Diana Prince",
-      image: "https://sm.ign.com/ign_fr/cover/a/avatar-gen/avatar-generations_bssq.jpg",
-
+      image:
+        "https://sm.ign.com/ign_fr/cover/a/avatar-gen/avatar-generations_bssq.jpg",
     },
     upvotes: 25,
     answers: 12,
@@ -97,7 +100,19 @@ interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>;
 }
 
+const test = async () => {
+  try {
+    await dbConnect();
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+
+
 const HomePage = async ({ searchParams }: SearchParams) => {
+  const result = await test();
+  console.log(result);
   const { query = "", filter = "" } = await searchParams;
 
   const filteredQuestions = questions.filter((question) => {
