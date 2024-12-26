@@ -58,16 +58,29 @@ export const AskQuestionSchema = z.object({
     .string()
     .min(1, { message: "Body is required." })
     .max(10000, { message: "Body cannot exceed 10000 characters." }),
-  tags:
+  tags: z
+    .array(
       z
-        .array(
-          z
-            .string()
-            .min(1, { message: "Tag must be at least 1 character long." })
-            .max(30, { message: "Tag cannot exceed 30 characters." })
-        )
-        .min(1, { message: "At least one tag is required." })
-        .max(5, { message: "Cannot exceed 5 tags."}),
+        .string()
+        .min(1, { message: "Tag must be at least 1 character long." })
+        .max(30, { message: "Tag cannot exceed 30 characters." })
+    )
+    .min(1, { message: "At least one tag is required." })
+    .max(5, { message: "Cannot exceed 5 tags." }),
 });
-  
 
+export const UserSchema = z.object({
+  name: z.string().min(1, { message: "Name is required" }),
+  username: z
+    .string()
+    .min(3, { message: "Username must be at least 3 characters long." }),
+  email: z.string().email({ message: "Please provide a valid email address" }),
+  bio: z.string().optional(),
+  image: z.string().url({ message: "Please provide a valid URL" }).optional() ,
+  location: z.string().optional(),
+  portfolio: z
+    .string()
+    .url({ message: "Please provide a valid URL" })
+    .optional(),
+  reputation: z.number().int().optional(),
+});
