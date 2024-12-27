@@ -1,6 +1,7 @@
 import User from "@/database/user.model";
 import handleError from "@/src/lib/handlers/error";
 import { NotFoundError, ValidationError } from "@/src/lib/http-errors";
+import dbConnect from "@/src/lib/mongoose";
 import { UserSchema } from "@/src/lib/validation";
 import { APIErrorResponse } from "@/types/global";
 import { NextResponse } from "next/server";
@@ -9,6 +10,7 @@ export async function POST(request: Request) {
   const { email } = await request.json();
 
   try {
+    await dbConnect();
     const validatedData = UserSchema.partial().safeParse({ email });
 
     if (!validatedData.success)

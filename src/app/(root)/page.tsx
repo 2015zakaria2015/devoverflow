@@ -8,6 +8,7 @@ import QuestionCard from "@/src/components/cards/QuestionCard";
 import { ValidationError } from "@/src/lib/http-errors";
 import dbConnect from "@/src/lib/mongoose";
 import handleError from "@/src/lib/handlers/error";
+import { api } from "@/src/lib/api";
 
 const questions = [
   {
@@ -102,7 +103,7 @@ interface SearchParams {
 
 const test = async () => {
   try {
-    await dbConnect();
+    return await api.users.getAll();
   } catch (error) {
     return handleError(error);
   }
