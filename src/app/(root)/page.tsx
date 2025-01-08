@@ -9,6 +9,7 @@ import { ValidationError } from "@/src/lib/http-errors";
 import dbConnect from "@/src/lib/mongoose";
 import handleError from "@/src/lib/handlers/error";
 import { api } from "@/src/lib/api";
+import { auth } from "@/auth";
 
 const questions = [
   {
@@ -112,8 +113,11 @@ const test = async () => {
 
 
 const HomePage = async ({ searchParams }: SearchParams) => {
-  const result = await test();
-  console.log(result);
+  const session = await auth()
+
+  console.log( "session : " ,session)
+  
+  
   const { query = "", filter = "" } = await searchParams;
 
   const filteredQuestions = questions.filter((question) => {

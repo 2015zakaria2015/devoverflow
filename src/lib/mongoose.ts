@@ -9,6 +9,7 @@ if (!MONGODB_URI) {
 }
 
 interface MongooseCache {
+  startSession(): unknown;
   conn: Mongoose | null;
   promise: Promise<Mongoose> | null;
 }
@@ -21,7 +22,7 @@ declare global {
 let cached = global.mongoose;
 
 if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+  cached = global.mongoose = { conn: null, promise: null, startSession: () => {} };
 }
 
 const dbConnect = async (): Promise<Mongoose> => {

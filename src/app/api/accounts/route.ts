@@ -1,21 +1,21 @@
-import Account from "@/database/account.model";
-import handleError from "@/src/lib/handlers/error";
-import dbConnect from "@/src/lib/mongoose";
-import { APIErrorResponse } from "@/types/global";
 import { NextResponse } from "next/server";
+
+import Account from "@/database/account.model";
+
+import { APIErrorResponse } from "@/types/global";
+import dbConnect from "@/src/lib/mongoose";
+import handleError from "@/src/lib/handlers/error";
 import { AccountSchema } from "@/src/lib/validation";
 import { ForbiddenError } from "@/src/lib/http-errors";
 
 export async function GET() {
   try {
     await dbConnect();
-    const accounts = await Account.find({});
+
+    const accounts = await Account.find();
 
     return NextResponse.json(
-      {
-        success: true,
-        data: accounts,
-      },
+      { success: true, data: accounts },
       { status: 200 }
     );
   } catch (error) {
@@ -27,6 +27,7 @@ export async function POST(request: Request) {
   try {
     await dbConnect();
     const body = await request.json();
+
     const validatedData = AccountSchema.parse(body);
 
     const existingAccount = await Account.findOne({
@@ -36,20 +37,15 @@ export async function POST(request: Request) {
 
     if (existingAccount)
       throw new ForbiddenError(
-        "an Account with the sqme provider and providerAccountId already exists"
+        "An account with the same provider already exists"
       );
 
     const newAccount = await Account.create(validatedData);
 
     return NextResponse.json(
-      {
-        success: true,
-        data: newAccount,
-      },
+      { success: true, data: newAccount },
       { status: 201 }
     );
-
-
   } catch (error) {
     return handleError(error, "api") as APIErrorResponse;
   }
