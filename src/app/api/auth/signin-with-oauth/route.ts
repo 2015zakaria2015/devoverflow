@@ -1,44 +1,90 @@
-import { NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-import { signIn } from 'next-auth/react';
-import { SignInWithOAuthSchema } from '@/src/lib/validation';
-import { ValidationError } from '@/src/lib/http-errors';
+import mongoose from "mongoose";
+import { NextResponse } from "next/server";
+import slugify from "slugify";
+
+import Account from "@/database/account.model";
+import User from "@/database/user.model";
+import dbConnect from "@/src/lib/mongoose";
+import { ValidationError } from "@/src/lib/http-errors";
+import handleError from "@/src/lib/handlers/error";
+import { SignInWithOAuthSchema } from "@/src/lib/validation";
+
 
 export async function POST(request: Request) {
+  const { provider, providerAccountId, user } = await request.json();
+
+  await dbConnect();
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const body = await request.json();
-    console.log('Request Body:', body);
-
-    const validatedData = SignInWithOAuthSchema.safeParse(body);
-
-    if (!validatedData.success) {
-      console.error('Validation Error:', validatedData.error.flatten().fieldErrors);
-      return NextResponse.json({ error: validatedData.error.flatten().fieldErrors }, { status: 400 });
-    }
-
-    const { provider, providerAccountId, user } = validatedData.data;
-
-    const token = await getToken({ req: request });
-    if (token) {
-      console.log('User already signed in:', token);
-      return NextResponse.redirect('/dashboard');
-    }
-
-    const signInResponse = await signIn(provider, {
-      callbackUrl: '/dashboard',
+    const validatedData = SignInWithOAuthSchema.safeParse({
+      provider,
       providerAccountId,
       user,
     });
 
-    if (signInResponse && signInResponse.error) {
-      console.error('SignIn Error:', signInResponse.error);
-      return NextResponse.json({ error: signInResponse.error }, { status: 400 });
+    if (!validatedData.success)
+      throw new ValidationError(validatedData.error.flatten().fieldErrors);
+
+    const { name, username, email, image } = user;
+
+    const slugifiedUsername = slugify(username, {
+      lower: true,
+      strict: true,
+      trim: true,
+    });
+
+    let existingUser = await User.findOne({ email }).session(session);
+
+    if (!existingUser) {
+      [existingUser] = await User.create(
+        [{ name, username: slugifiedUsername, email, image }],
+        { session }
+      );
+    } else {
+      const updatedData: { name?: string; image?: string } = {};
+
+      if (existingUser.name !== name) updatedData.name = name;
+      if (existingUser.image !== image) updatedData.image = image;
+
+      if (Object.keys(updatedData).length > 0) {
+        await User.updateOne(
+          { _id: existingUser._id },
+          { $set: updatedData }
+        ).session(session);
+      }
     }
 
-    console.log('SignIn Response:', signInResponse);
-    return NextResponse.redirect('/dashboard');
-  } catch (error) {
-    console.error('Unexpected Error:', error);
-    return NextResponse.json({ error: 'Unexpected Error', details: error.message }, { status: 500 });
+    const existingAccount = await Account.findOne({
+      userId: existingUser._id,
+      provider,
+      providerAccountId,
+    }).session(session);
+
+    if (!existingAccount) {
+      await Account.create(
+        [
+          {
+            userId: existingUser._id,
+            name,
+            image,
+            provider,
+            providerAccountId,
+          },
+        ],
+        { session }
+      );
+    }
+
+    await session.commitTransaction();
+
+    return NextResponse.json({ success: true });
+  } catch (error: unknown) {
+    await session.abortTransaction();
+    return handleError(error, "api") as APIErrorResponse;
+  } finally {
+    session.endSession();
   }
 }

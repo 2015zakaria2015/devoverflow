@@ -1,40 +1,38 @@
-import { NextResponse } from "next/server";
-
 interface Tag {
     _id: string;
     name: string;
-}
-
-interface Author {
+  }
+  
+  interface Author {
     _id: string;
     name: string;
     image: string;
-}
-
-interface Question {
+  }
+  
+  interface Question {
     _id: string;
     title: string;
     tags: Tag[];
     author: Author;
-    createdAt:Date | string;
+    createdAt: Date;
     upvotes: number;
     answers: number;
     views: number;
-
-}
-
-type ActionResponse<T= null> = {
+    createdAt: Date;
+  }
+  
+  type ActionResponse<T = null> = {
     success: boolean;
-    data?: T ;
+    data?: T;
     error?: {
-        message:string;
-        details?: Record<string , string[] > ;
-    }
-
-    status?:number
-}
-
-type SuccessResponse<T = null> = ActionResponse<T> & { success: true };
-type ErrorResponse = ActionResponse<undefined> & { success: false };
-type APIErrorResponse = NextResponse<ErrorResponse>;
-type APIRresponse <T = null> = NextResponse<SuccessResponse<T> | ErrorResponse>;
+      message: string;
+      details?: Record<string, string[]>;
+    };
+    status?: number;
+  };
+  
+  type SuccessResponse<T = null> = ActionResponse<T> & { success: true };
+  type ErrorResponse = ActionResponse<undefined> & { success: false };
+  
+  type APIErrorResponse = NextResponse<ErrorResponse>;
+  type APIResponse<T = null> = NextResponse<SuccessResponse<T> | ErrorResponse>;

@@ -1,100 +1,51 @@
-import React from "react";
-import { Button } from "@/src/components/ui/button";
 import Link from "next/link";
+
+import { auth } from "@/auth";
+
 import ROUTES from "@/constants/routes";
+import { Button } from "@/src/components/ui/button";
 import LocalSearch from "@/src/components/search/LocalSearch";
 import HomeFilter from "@/src/components/filters/HomeFilter";
 import QuestionCard from "@/src/components/cards/QuestionCard";
-import { ValidationError } from "@/src/lib/http-errors";
-import dbConnect from "@/src/lib/mongoose";
-import handleError from "@/src/lib/handlers/error";
-import { api } from "@/src/lib/api";
-import { auth } from "@/auth";
 
 const questions = [
   {
     _id: "1",
-    title: "Understanding React Hooks",
-    description:
-      "I'm new to React and struggling to understand how hooks work. Can someone explain useEffect and useState?",
+    title: "How to learn React?",
+    description: "I want to learn React, can anyone help me?",
     tags: [
       { _id: "1", name: "React" },
-      { _id: "2", name: "React" },
+      { _id: "2", name: "JavaScript" },
     ],
     author: {
       _id: "1",
-      name: "Alice Smith",
+      name: "John Doe",
       image:
-        "https://sm.ign.com/ign_fr/cover/a/avatar-gen/avatar-generations_bssq.jpg",
+        "https://static.vecteezy.com/system/resources/previews/002/002/403/non_2x/man-with-beard-avatar-character-isolated-icon-free-vector.jpg",
     },
-    upvotes: 15,
-    answers: 7,
-    views: 150,
-    createdAt: "2023-10-01T10:00:00.000Z",
+    upvotes: 10,
+    answers: 5,
+    views: 100,
+    createdAt: new Date(),
   },
   {
     _id: "2",
-    title: "Best Practices for CSS in javascript",
-    description:
-      "What are the best practices for organizing and writing CSS in a React application?",
+    title: "How to learn JavaScript?",
+    description: "I want to learn JavaScript, can anyone help me?",
     tags: [
-      { _id: "1", name: "Javascript" },
-      { _id: "2", name: "Javascript" },
+      { _id: "1", name: "JavaScript" },
+      { _id: "2", name: "JavaScript" },
     ],
     author: {
-      _id: "2",
-      name: "Bob Johnson",
+      _id: "1",
+      name: "John Doe",
       image:
-        "https://sm.ign.com/ign_fr/cover/a/avatar-gen/avatar-generations_bssq.jpg",
+        "https://static.vecteezy.com/system/resources/previews/002/002/403/non_2x/man-with-beard-avatar-character-isolated-icon-free-vector.jpg",
     },
-    upvotes: 20,
-    answers: 10,
-    views: 200,
-    createdAt: "2023-11-01T11:00:00.000Z",
-  },
-  {
-    _id: "3",
-    title: "Handling Forms in React",
-    description:
-      "I need help with handling form submissions in React. What's the best way to manage form state and validation?",
-    tags: [
-      { _id: "1", name: "React" },
-      { _id: "2", name: "Forms" },
-      { _id: "3", name: "State Management" },
-      { _id: "4", name: "Validation" },
-    ],
-    author: {
-      _id: "3",
-      name: "Charlie Brown",
-      image:
-        "https://sm.ign.com/ign_fr/cover/a/avatar-gen/avatar-generations_bssq.jpg",
-    },
-    upvotes: 12,
-    answers: 6,
-    views: 120,
-    createdAt: "2023-12-01T12:00:00.000Z",
-  },
-  {
-    _id: "4",
-    title: "Optimizing Performance in React",
-    description:
-      "My React application is slow. What are some tips and tricks to optimize its performance?",
-    tags: [
-      { _id: "1", name: "React" },
-      { _id: "2", name: "Performance" },
-      { _id: "3", name: "Optimization" },
-      { _id: "4", name: "Web Development" },
-    ],
-    author: {
-      _id: "4",
-      name: "Diana Prince",
-      image:
-        "https://sm.ign.com/ign_fr/cover/a/avatar-gen/avatar-generations_bssq.jpg",
-    },
-    upvotes: 25,
-    answers: 12,
-    views: 250,
-    createdAt: "2023-09-01T13:00:00.000Z",
+    upvotes: 10,
+    answers: 5,
+    views: 100,
+    createdAt: new Date("2021-09-01"),
   },
 ];
 
@@ -102,29 +53,17 @@ interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>;
 }
 
-const test = async () => {
-  try {
-    return await api.users.getAll();
-  } catch (error) {
-    return handleError(error);
-  }
-};
+const Home = async ({ searchParams }: SearchParams) => {
+  const session = await auth();
 
+  console.log("Session: ", session);
 
-
-const HomePage = async ({ searchParams }: SearchParams) => {
-  const session = await auth()
-
-  console.log( "session : " ,session)
-  
-  
   const { query = "", filter = "" } = await searchParams;
 
   const filteredQuestions = questions.filter((question) => {
     const matchesQuery = question.title
       .toLowerCase()
       .includes(query.toLowerCase());
-
     const matchesFilter = filter
       ? question.tags[0].name.toLowerCase() === filter.toLowerCase()
       : true;
@@ -135,6 +74,7 @@ const HomePage = async ({ searchParams }: SearchParams) => {
     <>
       <section className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
         <h1 className="h1-bold text-dark100_light900">All Questions</h1>
+
         <Button
           className="primary-gradient min-h-[46px] px-4 py-3 !text-light-900"
           asChild
@@ -144,9 +84,9 @@ const HomePage = async ({ searchParams }: SearchParams) => {
       </section>
       <section className="mt-11">
         <LocalSearch
-          route="/search"
+          route="/"
           imgSrc="/icons/search.svg"
-          placeholder="Search for questions"
+          placeholder="Search questions..."
           otherClasses="flex-1"
         />
       </section>
@@ -160,4 +100,4 @@ const HomePage = async ({ searchParams }: SearchParams) => {
   );
 };
 
-export default HomePage;
+export default Home;
