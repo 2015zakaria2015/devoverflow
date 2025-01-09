@@ -5,7 +5,6 @@ import dbConnect from "@/src/lib/mongoose";
 import { AccountSchema } from "@/src/lib/validation";
 import { NotFoundError, ValidationError } from "@/src/lib/http-errors";
 import handleError from "@/src/lib/handlers/error";
-import { APIErrorResponse } from "@/types/global";
 
 
 export async function POST(request: Request) {
