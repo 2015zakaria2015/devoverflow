@@ -5,12 +5,16 @@ import Image from "next/image";
 import { sidebarLinks } from "@/constants";
 import { usePathname } from "next/navigation";
 import React from "react";
-import { Sheet } from "lucide-react";
 import { SheetClose } from "../../ui/sheet";
 
-const NavLinks = ({ isMobileNav = false }: { isMobileNav?: boolean }) => {
+const NavLinks = ({
+  isMobileNav = false,
+  userId,
+}: {
+  isMobileNav?: boolean;
+  userId?: string;
+}) => {
   const pathname = usePathname();
-  const userId = 1;
 
   return (
     <>

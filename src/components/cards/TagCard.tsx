@@ -1,9 +1,9 @@
 import React from "react";
 import Link from "next/link";
 import ROUTES from "@/constants/routes";
-import { Badge } from "@/components/ui/badge";
 import { getDeviconsClassName } from "@/src/lib/utils";
 import Image from "next/image";
+import { Badge } from "../ui/badge";
 
 interface Props {
   _id: string;
