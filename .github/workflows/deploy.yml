@@ -1,0 +1,38 @@
+name: Deploy Next.js App
+
+on:
+  push:
+    branches:
+      - main  # You can change 'main' to the branch you want to deploy from
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # Adjust the version as per your project requirements
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Build Next.js app
+        run: |
+          npm run build
+
+      - name: Deploy to server
+        env:
+          HOST: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          rsync -avz -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" ./out/ $USERNAME@$HOST:/path/to/deployment/folder
+          rm private_key.pem
