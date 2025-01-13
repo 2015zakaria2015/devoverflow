@@ -16,11 +16,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '16'  # Ensure this matches your preferred Node.js version
 
       - name: Install dependencies
         run: |
-          npm install --legacy-peer-deps
+          npm install --legacy-peer-deps  # Uses legacy-peer-deps to avoid conflicts
 
       - name: Build the project
         run: npm run build
@@ -32,5 +32,5 @@ jobs:
             git pull origin main
             npm install --legacy-peer-deps
             npm run build
-            pm2 restart nextjs-app
+            pm2 restart nextjs-app  # Ensure pm2 is properly set up on your server
           EOF
