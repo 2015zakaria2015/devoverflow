@@ -1,31 +1,42 @@
 "use client";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { AskQuestionSchema } from "@/src/lib/validation";
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRef } from "react";
+import { MDXEditorMethods } from "@mdxeditor/editor";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import React, { useRef, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import ROUTES from "@/constants/routes";
+
+
+import TagCard from "../cards/TagCard";
+import { Button } from "../ui/button";
 import {
   Form,
-  FormField,
   FormControl,
-  FormItem,
   FormDescription,
+  FormField,
+  FormItem,
   FormLabel,
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import dynamic from "next/dynamic";
-import { MDXEditorMethods } from "@mdxeditor/editor";
-import { z } from "zod";
-import TagCard from "../cards/TagCard";
+import { createQuestion } from "@/src/lib/actions/question.action";
+import { toast } from "@/src/hooks/use-toast";
+import { AskQuestionSchema } from "@/src/lib/validation";
 
-const Editor = dynamic(() => import("@/src/components/editor/index"), {
+const Editor = dynamic(() => import("@/src/components/editor"), {
   ssr: false,
 });
 
 const QuestionForm = () => {
+  const router = useRouter();
   const editorRef = useRef<MDXEditorMethods>(null);
+  const [isPending, startTransition] = useTransition();
+
   const form = useForm<z.infer<typeof AskQuestionSchema>>({
     resolver: zodResolver(AskQuestionSchema),
     defaultValues: {
@@ -39,6 +50,7 @@ const QuestionForm = () => {
     e: React.KeyboardEvent<HTMLInputElement>,
     field: { value: string[] }
   ) => {
+    console.log(field, e);
     if (e.key === "Enter") {
       e.preventDefault();
       const tagInput = e.currentTarget.value.trim();
@@ -50,7 +62,7 @@ const QuestionForm = () => {
       } else if (tagInput.length > 15) {
         form.setError("tags", {
           type: "manual",
-          message: "Tag length should be less than 15 characters",
+          message: "Tag should be less than 15 characters",
         });
       } else if (field.value.includes(tagInput)) {
         form.setError("tags", {
@@ -62,7 +74,8 @@ const QuestionForm = () => {
   };
 
   const handleTagRemove = (tag: string, field: { value: string[] }) => {
-    const newTags = field.value.filter((t) => tag !== t);
+    const newTags = field.value.filter((t) => t !== tag);
+
     form.setValue("tags", newTags);
 
     if (newTags.length === 0) {
@@ -73,8 +86,27 @@ const QuestionForm = () => {
     }
   };
 
-  const handleCreateQuestion = (data: any) => {
-    console.log(data);
+  const handleCreateQuestion = async (
+    data: z.infer<typeof AskQuestionSchema>
+  ) => {
+    startTransition(async () => {
+      const result = await createQuestion(data);
+
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Question created successfully",
+        });
+
+        if (result.data) router.push(ROUTES.QUESTION(result.data._id));
+      } else {
+        toast({
+          title: `Error ${result.status}`,
+          description: result.error?.message || "Something went wrong",
+          variant: "destructive",
+        });
+      }
+    });
   };
 
   return (
@@ -97,8 +129,8 @@ const QuestionForm = () => {
                   {...field}
                 />
               </FormControl>
-              <FormDescription className="body-regular text-light-500 mt-2.5">
-                Be specific and imagine you’re asking a question to another
+              <FormDescription className="body-regular mt-2.5 text-light-500">
+                Be specific and imagine you&apos;re asking a question to another
                 person.
               </FormDescription>
               <FormMessage />
@@ -121,8 +153,8 @@ const QuestionForm = () => {
                   fieldChange={field.onChange}
                 />
               </FormControl>
-              <FormDescription className="body-regular text-light-500 mt-2.5">
-                Introduce the problem and expand on what you’ve put in the
+              <FormDescription className="body-regular mt-2.5 text-light-500">
+                Introduce the problem and expand on what you&apos;ve put in the
                 title.
               </FormDescription>
               <FormMessage />
@@ -146,7 +178,7 @@ const QuestionForm = () => {
                   />
                   {field.value.length > 0 && (
                     <div className="flex-start mt-2.5 flex-wrap gap-2.5">
-                      {field.value.map((tag: string) => (
+                      {field?.value?.map((tag: string) => (
                         <TagCard
                           key={tag}
                           _id={tag}
@@ -161,17 +193,29 @@ const QuestionForm = () => {
                   )}
                 </div>
               </FormControl>
-              <FormDescription className="body-regular text-light-500 mt-2.5">
+              <FormDescription className="body-regular mt-2.5 text-light-500">
                 Add up to 3 tags to describe what your question is about. You
-                need to press Enter to add a tag.
+                need to press enter to add a tag.
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <div className="mt-16 flex justify-end">
-          <Button className="primary-gradient !text-light-900 w-fit">
-            Ask A Question
+          <Button
+            type="submit"
+            disabled={isPending}
+            className="primary-gradient w-fit !text-light-900"
+          >
+            {isPending ? (
+              <>
+                <ReloadIcon className="mr-2 size-4 animate-spin" />
+                <span>Submitting</span>
+              </>
+            ) : (
+              <>Ask A Question</>
+            )}
           </Button>
         </div>
       </form>
@@ -180,5 +224,3 @@ const QuestionForm = () => {
 };
 
 export default QuestionForm;
-
-// 1lnRVxlP2kBxTN1F
